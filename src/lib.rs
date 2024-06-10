@@ -1,3 +1,6 @@
+#![warn(clippy::pedantic)]
+#![allow(clippy::missing_errors_doc)]
+
 use anyhow::Context as _;
 use bstr::{
     BStr,
@@ -347,7 +350,7 @@ impl<'image> ImageSections<'image> {
 struct StringHandle(usize);
 
 impl StringHandle {
-    fn resolve<'type_info>(&self, type_info: &'type_info TypeInformation) -> &'type_info str {
+    fn resolve<'type_info>(self, type_info: &'type_info TypeInformation) -> &'type_info str {
         &type_info.undecorated_strings[self.0]
     }
 }
@@ -391,7 +394,7 @@ impl<'image> TypeInformation<'image> {
         )
         .ok()?;
         let finder = Finder::new(&NEEDLE);
-        while let Some(pos) = finder.find(&buffer) {
+        while let Some(pos) = finder.find(buffer) {
             buffer.drain(pos..pos + NEEDLE.len());
         }
         let result = buffer
@@ -525,9 +528,9 @@ fn write_type_descriptors(
             );
             continue;
         };
-        write!(
+        writeln!(
             file,
-            "\t\tinline constexpr REL::ID {}{{ {id} }};\n",
+            "\t\tinline constexpr REL::ID {}{{ {id} }};",
             type_descriptor.undecorated_name.resolve(type_info)
         )?;
     }
@@ -585,9 +588,9 @@ fn write_vftables(
         let id = get_id!(class.vftables.len() - 1, last);
         write!(ids, "REL::ID({id})")?;
 
-        write!(
+        writeln!(
             file,
-            "\t\tinline constexpr std::array<REL::ID, {}> {}{{ {ids} }}\n",
+            "\t\tinline constexpr std::array<REL::ID, {}> {}{{ {ids} }}",
             class.vftables.len(),
             class.undecorated_name.resolve(type_info)
         )?;
@@ -597,7 +600,7 @@ fn write_vftables(
         warn!("{warning}");
         let count = warnings.1 - 1;
         if count > 0 {
-            warn!("and {count} others...")
+            warn!("and {count} others...");
         }
     }
 
