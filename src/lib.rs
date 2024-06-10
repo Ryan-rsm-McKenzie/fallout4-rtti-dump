@@ -413,10 +413,10 @@ impl<'image> TypeInformation<'image> {
         info!("scraping type information...");
         let sections = ImageSections::try_locate(pe)?;
         let mut undecorated_strings = Vec::new();
-        let type_descriptors = {
+        let type_descriptors: Vec<_> = {
             let vdtor = sections.lookup_type_descriptor_vdtor()?;
             let mut buffer = BString::default();
-            let mut v: Vec<_> = sections
+            sections
                 .data
                 .find_iter(vdtor)
                 .filter_map(|type_descriptor_offset| {
@@ -429,16 +429,19 @@ impl<'image> TypeInformation<'image> {
                     let decorated_name: &BStr =
                         CStr::from_bytes_until_nul(bytes).ok()?.to_bytes().into();
                     let undecorated_name = Self::try_demangle(decorated_name, &mut buffer)?;
-                    undecorated_strings.push(undecorated_name);
-                    Some(TypeDescriptorInfo {
-                        rva,
-                        decorated_name,
-                        undecorated_name: (undecorated_strings.len() - 1).into(),
-                    })
+                    undecorated_strings.push(undecorated_name.clone());
+                    Some((
+                        undecorated_name,
+                        TypeDescriptorInfo {
+                            rva,
+                            decorated_name,
+                            undecorated_name: (undecorated_strings.len() - 1).into(),
+                        },
+                    ))
                 })
-                .collect();
-            v.sort_by_key(|x| &undecorated_strings[x.undecorated_name.0]);
-            v
+                .collect::<BTreeMap<_, _>>()
+                .into_values()
+                .collect()
         };
         let classes = type_descriptors
             .iter()
