@@ -1,8 +1,18 @@
 [package]
-name = "rtti_dump"
-version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+name = "rtti_dump"
+publish = false
+version = "0.1.0"
 
 [dependencies]
+anyhow = "1.0.86"
+bstr = "1.9.1"
+bytemuck = {version = "1.16.0", features = ["derive"]}
+byteorder = "1.5.0"
+clap = {version = "4.5.4", features = ["derive"]}
+env_logger = "0.11.3"
+log = "0.4.21"
+memchr = "2.7.2"
+pelite = "0.10.0"
+smallvec = "1.13.2"
+undname = {git = "https://github.com/Ryan-rsm-McKenzie/undname-rs", rev = "f549066c675c1d46142282dbbcef4685da89853d"}
