@@ -590,7 +590,7 @@ fn write_vftables(
 
         writeln!(
             file,
-            "\t\tinline constexpr std::array<REL::ID, {}> {}{{ {ids} }}",
+            "\t\tinline constexpr std::array<REL::ID, {}> {}{{ {ids} }};",
             class.vftables.len(),
             class.undecorated_name.resolve(type_info)
         )?;
