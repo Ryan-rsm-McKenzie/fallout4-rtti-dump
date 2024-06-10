@@ -409,7 +409,11 @@ impl<'image> TypeInformation<'image> {
             })
             .collect::<Vec<_>>()
             .into_string_lossy();
-        Some(result)
+        if result.is_empty() {
+            None
+        } else {
+            Some(result)
+        }
     }
 
     fn try_scrape(pe: &PeFile<'image>) -> anyhow::Result<Self> {
