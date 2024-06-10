@@ -393,6 +393,9 @@ impl<'image> TypeInformation<'image> {
             buffer,
         )
         .ok()?;
+        if buffer == &b"float"[..] || buffer == &b"unsigned int"[..] {
+            return None;
+        }
         let finder = Finder::new(&NEEDLE);
         while let Some(pos) = finder.find(buffer) {
             buffer.drain(pos..pos + NEEDLE.len());
