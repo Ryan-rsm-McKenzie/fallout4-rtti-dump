@@ -18,7 +18,7 @@ use log::{
     info,
     warn,
 };
-use logging::WarningSpam;
+use logging::Spammable;
 use pelite::pe64::PeFile;
 use std::{
     fmt::Write as _,
@@ -79,7 +79,7 @@ fn write_vftables(
     )?;
 
     let mut ids = String::new();
-    let mut warnings = WarningSpam::new(
+    let mut warnings = Spammable::new(
         "this is probably because the meh's tools did not generate ids for these addresses",
     );
     for class in &type_info.classes {

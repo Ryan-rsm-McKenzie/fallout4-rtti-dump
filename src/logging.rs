@@ -1,10 +1,10 @@
-pub(crate) struct WarningSpam<'why> {
+pub(crate) struct Spammable<'why> {
     why: &'why str,
     warning: String,
     count: usize,
 }
 
-impl<'why> WarningSpam<'why> {
+impl<'why> Spammable<'why> {
     pub(crate) fn new(why: &'why str) -> Self {
         Self {
             why,
@@ -24,7 +24,7 @@ impl<'why> WarningSpam<'why> {
     }
 }
 
-impl Drop for WarningSpam<'_> {
+impl Drop for Spammable<'_> {
     fn drop(&mut self) {
         if self.count > 0 {
             log::warn!("{}", self.warning);
