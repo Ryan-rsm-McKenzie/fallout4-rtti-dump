@@ -1,6 +1,11 @@
+use chrono::Local;
 use clap::Parser;
-use env_logger::Env;
-use std::path::PathBuf;
+use env_logger::Builder;
+use log::LevelFilter;
+use std::{
+    io::Write as _,
+    path::PathBuf,
+};
 
 fn file_validator(path: &str) -> Result<PathBuf, &'static str> {
     let path: PathBuf = path.into();
@@ -40,10 +45,16 @@ struct Cli {
 }
 
 fn main() -> anyhow::Result<()> {
-    let env = Env::default()
-        .filter_or("MY_LOG_LEVEL", "info")
-        .write_style_or("MY_LOG_STYLE", "always");
-    env_logger::init_from_env(env);
+    Builder::new()
+        .filter_level(LevelFilter::max())
+        .format(|buf, record| {
+            let timestamp = Local::now().format("%r");
+            let level = record.level();
+            let style = buf.default_level_style(level);
+            let args = record.args();
+            writeln!(buf, "[{timestamp} {style}{level}{style:#}] {args}")
+        })
+        .init();
     let cli = Cli::parse();
     rtti_dump::scrape_type_information(&cli.input_image, &cli.address_bin, &cli.output_directory)
 }
