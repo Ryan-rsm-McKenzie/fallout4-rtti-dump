@@ -49,6 +49,43 @@ use std::{
 };
 use undname::Flags;
 
+struct WarningSpam<'why> {
+    why: &'why str,
+    warning: String,
+    count: usize,
+}
+
+impl<'why> WarningSpam<'why> {
+    fn new(why: &'why str) -> Self {
+        Self {
+            why,
+            warning: String::default(),
+            count: 0,
+        }
+    }
+}
+
+impl Drop for WarningSpam<'_> {
+    fn drop(&mut self) {
+        if self.count > 0 {
+            warn!("{}", self.warning);
+            if self.count > 1 {
+                warn!("and {} others...", self.count);
+            }
+            warn!("^^ {}", self.why);
+        }
+    }
+}
+
+macro_rules! maybe_warn {
+	($log:ident, $($arg:tt)*) => {
+		if $log.count == 0 {
+			$log.warning = format!($($arg)*);
+		}
+		$log.count += 1;
+	};
+}
+
 #[repr(transparent)]
 #[derive(AnyBitPattern, Clone, Copy, Eq, NoUninit, Ord, PartialEq, PartialOrd)]
 struct Va(u64);
@@ -564,7 +601,9 @@ fn write_vftables(
     )?;
 
     let mut ids = String::new();
-    let mut warnings = (None, 0);
+    let mut warnings = WarningSpam::new(
+        "this is probably because the meh's tools did not generate ids for these addresses",
+    );
     for class in &type_info.classes {
         macro_rules! get_id {
 			($i:expr, $rva:expr) => {{
@@ -573,13 +612,11 @@ fn write_vftables(
 				match address_bin.get(rva) {
 					Some(id) => id,
 					None => {
-						warnings.1 += 1;
-						if warnings.0.is_none() {
-							warnings.0 = Some(format!(
-								"failed to get id for `vftable' at {{{i}}}, with offset {rva}, for type '{}'",
-								class.decorated_name.to_str_lossy()
-							));
-						}
+						maybe_warn!(
+							warnings,
+							"failed to get id for `vftable' at {{{i}}}, with offset {rva}, for type '{}'",
+							class.decorated_name.to_str_lossy()
+						);
 						continue;
 					}
 				}
@@ -604,14 +641,6 @@ fn write_vftables(
             class.vftables.len(),
             class.undecorated_name.resolve(type_info)
         )?;
-    }
-
-    if let Some(warning) = warnings.0 {
-        warn!("{warning}");
-        let count = warnings.1 - 1;
-        if count > 0 {
-            warn!("and {count} others...");
-        }
     }
 
     write!(file, "\t}}\n}}\n")?;
