@@ -1,6 +1,9 @@
 use chrono::Local;
 use clap::Parser;
-use env_logger::Builder;
+use env_logger::{
+    Builder,
+    WriteStyle,
+};
 use log::LevelFilter;
 use std::{
     io::Write as _,
@@ -47,6 +50,7 @@ struct Cli {
 fn main() -> anyhow::Result<()> {
     Builder::new()
         .filter_level(LevelFilter::max())
+        .write_style(WriteStyle::Always)
         .format(|buf, record| {
             let timestamp = Local::now().format("%r");
             let level = record.level();
