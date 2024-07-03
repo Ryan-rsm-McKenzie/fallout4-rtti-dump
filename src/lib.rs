@@ -78,12 +78,12 @@ impl Drop for WarningSpam<'_> {
 }
 
 macro_rules! maybe_warn {
-	($log:ident, $($arg:tt)*) => {
-		if $log.count == 0 {
-			$log.warning = format!($($arg)*);
-		}
-		$log.count += 1;
-	};
+    ($log:ident, $($arg:tt)*) => {
+        if $log.count == 0 {
+            $log.warning = format!($($arg)*);
+        }
+        $log.count += 1;
+    };
 }
 
 #[repr(transparent)]
@@ -606,22 +606,22 @@ fn write_vftables(
     );
     for class in &type_info.classes {
         macro_rules! get_id {
-			($i:expr, $rva:expr) => {{
-				let i = $i;
-				let rva = $rva;
-				match address_bin.get(rva) {
-					Some(id) => id,
-					None => {
-						maybe_warn!(
-							warnings,
-							"failed to get id for `vftable' at {{{i}}}, with offset {rva}, for type '{}'",
-							class.decorated_name.to_str_lossy()
-						);
-						continue;
-					}
-				}
-			}}
-		}
+            ($i:expr, $rva:expr) => {{
+                let i = $i;
+                let rva = $rva;
+                match address_bin.get(rva) {
+                    Some(id) => id,
+                    None => {
+                        maybe_warn!(
+                            warnings,
+                            "failed to get id for `vftable' at {{{i}}}, with offset {rva}, for type '{}'",
+                            class.decorated_name.to_str_lossy()
+                        );
+                        continue;
+                    }
+                }
+            }}
+        }
 
         ids.clear();
         let (&last, rest) = class
