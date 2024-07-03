@@ -80,7 +80,7 @@ fn write_vftables(
 
     let mut ids = String::new();
     let mut warnings = Spammable::new(
-        "this is probably because the meh's tools did not generate ids for these addresses",
+        "this is probably because meh's tools did not generate ids for these addresses",
     );
     for class in &type_info.classes {
         macro_rules! get_id {
